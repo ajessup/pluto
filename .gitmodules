@@ -1,0 +1,6 @@
+[submodule "test/deps/nodeunit"]
+	path = test/deps/nodeunit
+	url = git://github.com/caolan/nodeunit.git
+[submodule "example/deps"]
+	path = example/deps
+	url = http://github.com/ncr/node.ws.js.git

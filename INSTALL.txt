@@ -1,0 +1,11 @@
+To install
+~~~~~~~~~~
+
+(1) If you don't have it, get and build node.js - http://nodejs.org/
+
+(2) Bring in the dependancies by cd'ing to the root directly of the project (the one with this file in it) and updating the submodiles.
+   $ git submodule init
+   $ git submodule update
+
+(3) Run the example 
+   $ node example/example.js

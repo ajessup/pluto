@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>WebSockets and Node</title>
+	
+</head>
+
+<body>
+
+	<h1>Hello!</h1>
+	<ul id="dash">&nbsp;</ul>
+
+<textarea style="height: 250px; width: 500px;" id="thecanvas">
+</textarea>
+<script src="pluto-client/PlutoClient.js"></script>
+<script src="pluto-client/PlutoClientUtil.js"></script>
+<script>
+		
+		function clearDash() { document.getElementById("dash").innerHTML=""; }
+		function addItemToDash(stringToAdd) {
+			dashEl = document.getElementById("dash");
+			document.getElementById("dash").innerHTML =
+			 	document.getElementById("dash").innerHTML+"<li>"+stringToAdd+"</li>";
+		}
+		
+		// LOCAL EVENT MANAGEMENT
+		var plutoClient = new PlutoClient("ws://"+document.domain+":8080");
+		var el = document.getElementById("thecanvas");
+		
+		plutoClient.setOnElementMutate(function(operation){
+			var virtualCaretPos = 0;
+			for(i=0;i<operation.length;i++) {
+				switch(operation[i]['mutation']) {
+					case 'S': // SKIP
+						virtualCaretPos += operation[i]['value'];
+						console.log("Skipping "+operation[i]['value'])
+						break;
+					case 'I': // INSERT
+						var front = (el.value).substring(0,virtualCaretPos); 
+						var back = (el.value).substring(virtualCaretPos,el.value.length);
+						el.value=front+operation[i]['value']+back;
+						el.setSelectionRange(
+							virtualCaretPos+operation[i]['value'].length,
+							virtualCaretPos+operation[i]['value'].length
+						); 
+		                console.log(virtualCaretPos+operation[i]['value'].length);
+						console.log("Insert "+operation[i]['value']+" at "+virtualCaretPos);
+						break;
+					case 'D': // Delete
+						var front = (el.value).substring(0,virtualCaretPos); 
+						var back = (el.value).substring(virtualCaretPos+operation[i].value,el.value.length);
+						el.value=(front+back);
+						el.setSelectionRange(virtualCaretPos, virtualCaretPos); 
+						console.log("Delete "+operation[i]['value']+" at "+virtualCaretPos);
+						break;
+				}
+			}
+		});
+		
+		
+		el.onkeydown = function(e){
+			clearDash();
+			var op = [];
+			addItemToDash("SELSTART: "+el.selectionStart);
+			addItemToDash("SELEND: "+el.selectionEnd);
+
+			// OPERATION AT CARET POSITION
+			if((el.selectionEnd-el.selectionStart) == 0) {
+				if(e.keyCode == 8) {
+					// DELETE
+					op[0] = {'mutation':'S','value':(el.selectionStart-1)};
+					addItemToDash("SKIP "+(el.selectionStart-1));
+					op[1] = {'mutation':'D','value':1};
+					addItemToDash("DELETE 1");
+					op[2] = {'mutation':'S','value':(el.value.length-(el.selectionStart-1))};
+					addItemToDash("SKIP "+(el.value.length-(el.selectionStart-1)));
+				}else{
+					// INSERT
+					op[0] = {'mutation':'S','value':el.selectionStart};
+					addItemToDash("SKIP "+el.selectionStart);
+					op[1] = {'mutation':'I','value':String.fromCharCode(e.keyCode)};
+					addItemToDash("INSERT "+String.fromCharCode(e.keyCode));
+					op[2] = {'mutation':'S','value':(el.value.length-el.selectionStart)};
+					addItemToDash("SKIP "+(el.value.length-el.selectionStart));
+				}
+			}else{
+				// OPERATION OVER A RANGE
+				// Delete the initial range
+				
+				op[0] = {'mutation':'S','value':(el.selectionStart)};
+				addItemToDash("SKIP "+(el.selectionStart));
+				op[1] = {'mutation':'D','value':(el.selectionEnd-el.selectionStart)};
+				addItemToDash("DELETE "+(el.selectionEnd-el.selectionStart));
+				
+				if(e.keyCode == 8) {
+					op[2] = {'mutation':'S','value':(el.value.length-el.selectionEnd)};
+					addItemToDash("SKIP "+(el.value.length-el.selectionEnd));
+				}else{
+					op[2] = {'mutation':'I','value':String.fromCharCode(e.keyCode)};
+					addItemToDash("INSERT "+String.fromCharCode(e.keyCode));
+					op[3] = {'mutation':'S','value':(el.value.length-(el.selectionEnd+1))};
+					addItemToDash("SKIP "+(el.value.length-(el.selectionEnd+1)));
+				}
+			}
+
+			plutoClient.mutateElement(op);
+			return false;
+		};
+		
+</script>
+
+
+
+</body>
+</html>
