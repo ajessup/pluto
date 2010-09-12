@@ -21,7 +21,7 @@
 	 "pluto/client" : "./lib/client"
   },
   "dependencies" : { 
-      "http://github.com/fictorial/nodered/tarball/master" : "",
+      "http://github.com/fictorial/nodered/tarball/master",
 	  "nodeunit" : ">=0.1.0"
   },
   "engines": { 
