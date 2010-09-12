@@ -20,7 +20,9 @@
 	 "pluto/shared" : "./lib/shared",
 	 "pluto/client" : "./lib/client"
   },
-  "dependencies" : [ "nodered", "nodeunit" ],
+  "dependencies" : { 
+	  "nodeunit" : ">=0.1.0"
+  },
   "engines": { 
 	"node": ">0.1.91"
   }
