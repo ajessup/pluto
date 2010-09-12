@@ -20,7 +20,7 @@
 	 "pluto/shared" : "./lib/shared",
 	 "pluto/client" : "./lib/client"
   },
-  "dependencies" : [ "http://github.com/fictorial/nodered/tarball/master", "nodeunit" ],
+  "dependencies" : [ "nodered", "nodeunit" ],
   "engines": { 
 	"node": ">0.1.91"
   }
