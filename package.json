@@ -1,0 +1,30 @@
+{
+  "name": "pluto",
+  "description": "pluto(t) is an extensible operational transofrm service container for NodeRed and Node.js",
+  "version": "0.1.2",
+  "keywords": [ "operational transform", "pubsub", "server", "framework" ],
+  "author": "Andrew Jessup <ajessup@gmail.com>",
+  "licenses": [ "MIT" ],
+  "repositories": {
+    "type": "git",
+    "url": "http://github.com/ajessup/pluto.git"
+  },
+  "bugs": { "web": "http://github.com/ajessup/pluto/issues" },
+  "directories": { 
+	"lib": "./lib" /*, 
+	"test": "./test" */
+  },
+  "os": [ "linux", "darwin" ],
+  "modules" : {
+	 "pluto/server" : "./lib/server",
+	 "pluto/shared" : "./lib/shared",
+	 "pluto/client" : "./lib/client"
+  },
+  "dependencies" : { 
+      "http://github.com/fictorial/nodered/tarball/master" : ">=0.6.1",
+	  "nodeunit" : ">=0.1.0"
+  },
+  "engines": { 
+	"node": ">0.1.91"
+  }
+}
