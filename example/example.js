@@ -7,7 +7,8 @@ var sys = require("sys"),
     url = require("url"),  
     path = require("path"),  
     fs = require("fs"),
-	ws = require("ws");
+	ws = require("ws"),
+	io = require('socket.io');
 
 var Pluto = require('pluto').Pluto;
 
@@ -17,16 +18,16 @@ var WEB_SERVER_PORT = 3000,
 
 // START A SIMPLE WEBSERVER
 
-http.createServer(function(request, response) {  
+var webServer = http.createServer(function(request, response) {  
     var uri = url.parse(request.url).pathname;
 	var filename;
 	
 	// Map requests to the uri /pluto-client to the /lib/client directory
 	if( uri.indexOf("pluto-client") != -1 ) {
 		var substitution_pos = uri.indexOf("pluto-client") + 12;
-		filename = path.join(process.cwd(), "../lib/client", uri.substr(substitution_pos,uri.length-substitution_pos));
+		filename = path.join(__dirname, "../lib/client", uri.substr(substitution_pos,uri.length-substitution_pos));
 	} else {
-		filename = path.join(process.cwd(), WEB_SERVER_DOCROOT, uri);
+		filename = path.join(__dirname, WEB_SERVER_DOCROOT, uri);
 	}
     sys.puts("Loading "+filename);
     path.exists(filename, function(exists) {  
@@ -50,27 +51,33 @@ http.createServer(function(request, response) {
             response.end();  
         });  
     });  
-}).listen(WEB_SERVER_PORT);  
+});
+
+webServer.listen(WEB_SERVER_PORT);  
   
 sys.puts("Web server running at http://localhost:"+WEB_SERVER_PORT+"/");
 
-// START A SIMPLE WEBSOCKETS SERVER
+// BIND PLUTO TO A TRANSPORT CHANNEL (SOCKET.IO)
 
+var socket = io.listen(webServer); 
 var plutoServer = new Pluto(function() {});
 
-ws.createServer(function(websocket) {
-	websocket.addListener("connect", function(resource) {
-		websocket.onPlutoUpdate = function(data){
-			this.write(data);
-		};
-		plutoServer.addClient(websocket);
-		sys.puts("Received CONNECT " + resource);
-	}).addListener("data", function(data) {
+socket.on('connection', function(client){ 
+	
+	client.onPlutoUpdate = function(data) {
+		this.send(data);
+	}
+	
+	plutoServer.addClient(client);
+	
+	client.on('message', function(data) {
 		sys.puts("Received DATA " + data);
-		plutoServer.update(websocket, data);
-	}).addListener("close", function() {
-		plutoServer.removeClient(websocket);
+		plutoServer.update(client, data);
+	}) 
+    client.on('disconnect', function() { 
+		plutoServer.removeClient(client); 
 	});
-}).listen(8080);
+	
+});
 
 sys.puts("WebSocket server running at http://localhost:8080/");

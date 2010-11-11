@@ -16,6 +16,7 @@
 
 <textarea style="height: 250px; width: 500px;" id="thecanvas">
 </textarea>
+<script src="/socket.io/socket.io.js"></script>
 <script src="pluto-client/PlutoClient.js"></script>
 <script src="pluto-client/PlutoClientUtil.js"></script>
 <script>
@@ -28,7 +29,7 @@
 		}
 		
 		// LOCAL EVENT MANAGEMENT
-		var plutoClient = new PlutoClient("ws://"+document.domain+":8080");
+		var plutoClient = new PlutoClient(document.domain);
 		var el = document.getElementById("thecanvas");
 		
 		plutoClient.setOnElementMutate(function(operation){
