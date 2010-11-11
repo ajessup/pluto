@@ -1,5 +1,5 @@
 require.paths.unshift(__dirname);
-require.paths.unshift(__dirname+'/../pluto');
+require.paths.unshift(__dirname+'/../lib/server');
 require.paths.unshift(__dirname+'/deps');
 
 var sys = require("sys"),  
@@ -8,20 +8,23 @@ var sys = require("sys"),
     path = require("path"),  
     fs = require("fs"),
 	ws = require("ws");
-	
+
 var Pluto = require('pluto').Pluto;
 
 var WEB_SERVER_PORT = 3000,
 	WEB_SERVER_DOCROOT = 'public/',
-	PLUTO_CLIENT_LIBRARY = '../pluto-client/'
+	PLUTO_CLIENT_LIBRARY = '../lib/client/'
 
 // START A SIMPLE WEBSERVER
 
 http.createServer(function(request, response) {  
     var uri = url.parse(request.url).pathname;
 	var filename;
+	
+	// Map requests to the uri /pluto-client to the /lib/client directory
 	if( uri.indexOf("pluto-client") != -1 ) {
-		filename = path.join(process.cwd(), "../", uri);
+		var substitution_pos = uri.indexOf("pluto-client") + 12;
+		filename = path.join(process.cwd(), "../lib/client", uri.substr(substitution_pos,uri.length-substitution_pos));
 	} else {
 		filename = path.join(process.cwd(), WEB_SERVER_DOCROOT, uri);
 	}
@@ -47,9 +50,9 @@ http.createServer(function(request, response) {
             response.end();  
         });  
     });  
-}).listen(3000);  
+}).listen(WEB_SERVER_PORT);  
   
-sys.puts("Web server running at http://localhost:3000/");
+sys.puts("Web server running at http://localhost:"+WEB_SERVER_PORT+"/");
 
 // START A SIMPLE WEBSOCKETS SERVER
 
