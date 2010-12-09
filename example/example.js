@@ -32,21 +32,21 @@ var webServer = http.createServer(function(request, response) {
     sys.puts("Loading "+filename);
     path.exists(filename, function(exists) {  
         if(!exists) {  
-            response.sendHeader(404);  
+            response.writeHead(404);  
             response.write("404 Not Found\n");  
-            response.close();  
+            response.end();  
             return;  
         }  
   
         fs.readFile(filename, "binary", function(err, file) {  
             if(err) {  
-                response.sendHeader(500);  
+                response.writeHead(500);  
                 response.write(err + "\n");  
-                response.close();  
+                response.end();  
                 return;  
             }  
   
-            response.sendHeader(200);  
+            response.writeHead(200);  
             response.write(file, "binary");  
             response.end();  
         });  
@@ -80,4 +80,4 @@ socket.on('connection', function(client){
 	
 });
 
-sys.puts("WebSocket server running at http://localhost:8080/");
+sys.puts("WebSocket server running at http://localhost:"+WEB_SERVER_PORT+"/");
