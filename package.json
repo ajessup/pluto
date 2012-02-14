@@ -11,8 +11,7 @@
   },
   "bugs": { "web": "http://github.com/ajessup/pluto/issues" },
   "directories": { 
-	"lib": "./lib" /*, 
-	"test": "./test" */
+	"lib": "./lib"
   },
   "os": [ "linux", "darwin" ],
   "modules" : {
